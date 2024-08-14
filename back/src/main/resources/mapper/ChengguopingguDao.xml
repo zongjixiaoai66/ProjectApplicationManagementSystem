@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ChengguopingguDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.xiangmu_id as xiangmuId
+        ,a.pingshenzhuanjia_id as pingshenzhuanjiaId
+        ,a.insert_time as insertTime
+        ,a.chengguopinggu_content as chengguopingguContent
+        ,a.pinggu_defen as pingguDefen
+        ,a.chengguopinggu_types as chengguopingguTypes
+        ,a.update_time as updateTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ChengguopingguView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,pingshenzhuanjia.pingshenzhuanjia_name as pingshenzhuanjiaName
+        ,pingshenzhuanjia.pingshenzhuanjia_phone as pingshenzhuanjiaPhone
+        ,pingshenzhuanjia.pingshenzhuanjia_id_number as pingshenzhuanjiaIdNumber
+        ,pingshenzhuanjia.pingshenzhuanjia_photo as pingshenzhuanjiaPhoto
+        ,pingshenzhuanjia.pingshenzhuanjia_email as pingshenzhuanjiaEmail
+        ,pingshenzhuanjia.yanjiufangxiang_types as yanjiufangxiangTypes
+        ,pingshenzhuanjia.pingshenzhuanjia_content as pingshenzhuanjiaContent
+        ,xiangmu.yonghu_id as xiangmuYonghuId
+        ,xiangmu.xiangmu_uuid_number as xiangmuUuidNumber
+        ,xiangmu.xiangmu_name as xiangmuName
+        ,xiangmu.laiyuan_types as laiyuanTypes
+        ,xiangmu.xiangmu_types as xiangmuTypes
+        ,xiangmu.kaishi_time as kaishiTime
+        ,xiangmu.jieshu_time as jieshuTime
+        ,xiangmu.huafei_jine as huafeiJine
+        ,xiangmu.yanjiufangxiang_types as yanjiufangxiangTypes
+        ,xiangmu.yanjiufangxiang_file as yanjiufangxiangFile
+        ,xiangmu.xiangmu_content as xiangmuContent
+        ,xiangmu.xiangmu_chengguo_content as xiangmuChengguoContent
+        ,xiangmu.xiangmu_yesno_types as xiangmuYesnoTypes
+        ,xiangmu.xiangmu_yesno_text as xiangmuYesnoText
+        ,xiangmu.xiangmu_shenhe_time as xiangmuShenheTime
+
+        FROM chengguopinggu  a
+        left JOIN pingshenzhuanjia pingshenzhuanjia ON a.pingshenzhuanjia_id = pingshenzhuanjia.id
+        left JOIN xiangmu xiangmu ON a.xiangmu_id = xiangmu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.xiangmuId != null and params.xiangmuId != ''">
+                and (
+                    a.xiangmu_id = #{params.xiangmuId}
+                )
+            </if>
+            <if test="params.pingshenzhuanjiaId != null and params.pingshenzhuanjiaId != ''">
+                and (
+                    a.pingshenzhuanjia_id = #{params.pingshenzhuanjiaId}
+                )
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test=" params.chengguopingguContent != '' and params.chengguopingguContent != null and params.chengguopingguContent != 'null' ">
+                and a.chengguopinggu_content like CONCAT('%',#{params.chengguopingguContent},'%')
+            </if>
+            <if test="params.pingguDefenStart != null ">
+                <![CDATA[  and a.pinggu_defen >= #{params.pingguDefenStart}   ]]>
+            </if>
+            <if test="params.pingguDefenEnd != null ">
+                <![CDATA[  and a.pinggu_defen <= #{params.pingguDefenEnd}   ]]>
+            </if>
+            <if test="params.chengguopingguTypes != null and params.chengguopingguTypes != ''">
+                and a.chengguopinggu_types = #{params.chengguopingguTypes}
+            </if>
+            <if test=" params.updateTimeStart != '' and params.updateTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.update_time) >= UNIX_TIMESTAMP(#{params.updateTimeStart}) ]]>
+            </if>
+            <if test=" params.updateTimeEnd != '' and params.updateTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.update_time) <= UNIX_TIMESTAMP(#{params.updateTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断评审专家的id不为空 -->
+            <if test=" params.pingshenzhuanjiaIdNotNull != '' and params.pingshenzhuanjiaIdNotNull != null and params.pingshenzhuanjiaIdNotNull != 'null' ">
+                and a.pingshenzhuanjia_id IS NOT NULL
+            </if>
+            <if test=" params.pingshenzhuanjiaName != '' and params.pingshenzhuanjiaName != null and params.pingshenzhuanjiaName != 'null' ">
+                and pingshenzhuanjia.pingshenzhuanjia_name like CONCAT('%',#{params.pingshenzhuanjiaName},'%')
+            </if>
+            <if test=" params.pingshenzhuanjiaPhone != '' and params.pingshenzhuanjiaPhone != null and params.pingshenzhuanjiaPhone != 'null' ">
+                and pingshenzhuanjia.pingshenzhuanjia_phone like CONCAT('%',#{params.pingshenzhuanjiaPhone},'%')
+            </if>
+            <if test=" params.pingshenzhuanjiaIdNumber != '' and params.pingshenzhuanjiaIdNumber != null and params.pingshenzhuanjiaIdNumber != 'null' ">
+                and pingshenzhuanjia.pingshenzhuanjia_id_number like CONCAT('%',#{params.pingshenzhuanjiaIdNumber},'%')
+            </if>
+            <if test=" params.pingshenzhuanjiaEmail != '' and params.pingshenzhuanjiaEmail != null and params.pingshenzhuanjiaEmail != 'null' ">
+                and pingshenzhuanjia.pingshenzhuanjia_email like CONCAT('%',#{params.pingshenzhuanjiaEmail},'%')
+            </if>
+            <if test="params.yanjiufangxiangTypes != null  and params.yanjiufangxiangTypes != ''">
+                and pingshenzhuanjia.yanjiufangxiang_types = #{params.yanjiufangxiangTypes}
+            </if>
+
+            <if test=" params.pingshenzhuanjiaContent != '' and params.pingshenzhuanjiaContent != null and params.pingshenzhuanjiaContent != 'null' ">
+                and pingshenzhuanjia.pingshenzhuanjia_content like CONCAT('%',#{params.pingshenzhuanjiaContent},'%')
+            </if>
+                <!-- 判断项目的id不为空 -->
+            <if test=" params.xiangmuIdNotNull != '' and params.xiangmuIdNotNull != null and params.xiangmuIdNotNull != 'null' ">
+                and a.xiangmu_id IS NOT NULL
+            </if>
+            <if test="params.yonghuId != null  and params.yonghuId != ''">
+                and xiangmu.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test=" params.xiangmuUuidNumber != '' and params.xiangmuUuidNumber != null and params.xiangmuUuidNumber != 'null' ">
+                and xiangmu.xiangmu_uuid_number like CONCAT('%',#{params.xiangmuUuidNumber},'%')
+            </if>
+            <if test=" params.xiangmuName != '' and params.xiangmuName != null and params.xiangmuName != 'null' ">
+                and xiangmu.xiangmu_name like CONCAT('%',#{params.xiangmuName},'%')
+            </if>
+            <if test="params.laiyuanTypes != null  and params.laiyuanTypes != ''">
+                and xiangmu.laiyuan_types = #{params.laiyuanTypes}
+            </if>
+
+            <if test="params.xiangmuTypes != null  and params.xiangmuTypes != ''">
+                and xiangmu.xiangmu_types = #{params.xiangmuTypes}
+            </if>
+
+            <if test=" params.kaishiTimeStart != '' and params.kaishiTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(xiangmu.kaishi_time) >= UNIX_TIMESTAMP(#{params.kaishiTimeStart}) ]]>
+            </if>
+            <if test=" params.kaishiTimeEnd != '' and params.kaishiTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(xiangmu.kaishi_time) <= UNIX_TIMESTAMP(#{params.kaishiTimeEnd}) ]]>
+            </if>
+            <if test=" params.jieshuTimeStart != '' and params.jieshuTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(xiangmu.jieshu_time) >= UNIX_TIMESTAMP(#{params.jieshuTimeStart}) ]]>
+            </if>
+            <if test=" params.jieshuTimeEnd != '' and params.jieshuTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(xiangmu.jieshu_time) <= UNIX_TIMESTAMP(#{params.jieshuTimeEnd}) ]]>
+            </if>
+            <if test="params.huafeiJineStart != null ">
+                <![CDATA[  and xiangmu.huafei_jine >= #{params.huafeiJineStart}   ]]>
+            </if>
+            <if test="params.huafeiJineEnd != null ">
+                <![CDATA[  and xiangmu.huafei_jine <= #{params.huafeiJineEnd}   ]]>
+            </if>
+            <if test="params.yanjiufangxiangTypes != null  and params.yanjiufangxiangTypes != ''">
+                and xiangmu.yanjiufangxiang_types = #{params.yanjiufangxiangTypes}
+            </if>
+
+            <if test=" params.xiangmuContent != '' and params.xiangmuContent != null and params.xiangmuContent != 'null' ">
+                and xiangmu.xiangmu_content like CONCAT('%',#{params.xiangmuContent},'%')
+            </if>
+            <if test=" params.xiangmuChengguoContent != '' and params.xiangmuChengguoContent != null and params.xiangmuChengguoContent != 'null' ">
+                and xiangmu.xiangmu_chengguo_content like CONCAT('%',#{params.xiangmuChengguoContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(xiangmu.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(xiangmu.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+            <if test="params.xiangmuYesnoTypes != null  and params.xiangmuYesnoTypes != ''">
+                and xiangmu.xiangmu_yesno_types = #{params.xiangmuYesnoTypes}
+            </if>
+
+            <if test=" params.xiangmuYesnoText != '' and params.xiangmuYesnoText != null and params.xiangmuYesnoText != 'null' ">
+                and xiangmu.xiangmu_yesno_text like CONCAT('%',#{params.xiangmuYesnoText},'%')
+            </if>
+            <if test=" params.xiangmuShenheTimeStart != '' and params.xiangmuShenheTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(xiangmu.xiangmu_shenhe_time) >= UNIX_TIMESTAMP(#{params.xiangmuShenheTimeStart}) ]]>
+            </if>
+            <if test=" params.xiangmuShenheTimeEnd != '' and params.xiangmuShenheTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(xiangmu.xiangmu_shenhe_time) <= UNIX_TIMESTAMP(#{params.xiangmuShenheTimeEnd}) ]]>
+            </if>
+        </where>
+        order by a.pinggu_defen desc
+    </select>
+
+</mapper>
